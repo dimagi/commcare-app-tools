@@ -1,5 +1,7 @@
 # CommCare App Tools (`cc`)
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/dimagi/commcare-app-tools)
+
 ## What is this?
 
 CommCare App Tools is a proof of concept that makes it easier to work with CommCare from your computer. If you build apps on CommCare HQ, you normally do everything through the website -- looking up cases, checking mobile worker data, downloading apps, and so on. This project wraps all of those actions into a single command-line tool called `cc` so you can do them quickly from a terminal without clicking through the web interface.

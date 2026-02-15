@@ -25,6 +25,9 @@ Thumbs.db
 # Config (don't commit user credentials)
 .commcare/
 
+# Local CLI JAR and workspace data
+.cc/
+
 # Testing
 .pytest_cache/
 .coverage

@@ -207,6 +207,40 @@ class ConfigManager:
         self._write_config(config)
         return self._env_from_config(name, config)
 
+    def update_environment(
+        self,
+        name: str,
+        url: str | None = None,
+        client_id: str | None = None,
+        formplayer_url: str | None = ...,  # Use ... as sentinel for "not provided"
+    ) -> Environment:
+        """Update an existing environment's settings.
+
+        Args:
+            name: Environment name to update
+            url: New URL (optional)
+            client_id: New client ID (optional)
+            formplayer_url: New FormPlayer URL (optional, pass None to clear)
+        """
+        config = self._read_config()
+        envs = config.get("environments", {})
+        if name not in envs:
+            raise ValueError(
+                f"Environment '{name}' not found. "
+                "Run 'cc env list' to see available environments."
+            )
+
+        env_data = envs[name]
+        if url is not None:
+            env_data["url"] = url.rstrip("/")
+        if client_id is not None:
+            env_data["client_id"] = client_id
+        if formplayer_url is not ...:  # Explicit check for sentinel
+            env_data["formplayer_url"] = formplayer_url
+
+        self._write_config(config)
+        return self._env_from_config(name, config)
+
     # -- Credentials file operations --
 
     def _read_credentials(self) -> dict:

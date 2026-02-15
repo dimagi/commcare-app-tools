@@ -67,13 +67,17 @@ from .api import api  # noqa: E402
 from .apps import app  # noqa: E402
 from .auth import auth  # noqa: E402
 from .cases import case  # noqa: E402
+from .commcare_cli import commcare_cli  # noqa: E402
 from .config_cmd import config_cmd  # noqa: E402
 from .domains import domains  # noqa: E402
 from .env import env  # noqa: E402
+from .formplayer import formplayer  # noqa: E402
 from .forms import form  # noqa: E402
 from .lookup_tables import lookup_table  # noqa: E402
 from .reports import report  # noqa: E402
 from .users import user  # noqa: E402
+from .web import web  # noqa: E402
+from .workspace import workspace  # noqa: E402
 
 cli.add_command(auth)
 cli.add_command(env)
@@ -86,3 +90,7 @@ cli.add_command(form)
 cli.add_command(user)
 cli.add_command(lookup_table)
 cli.add_command(report)
+cli.add_command(formplayer)
+cli.add_command(commcare_cli)
+cli.add_command(web)
+cli.add_command(workspace)

@@ -5,14 +5,6 @@
 This is the `commcare-app-tools` repository, which provides the `cc` CLI tool
 for interacting with CommCare HQ APIs.
 
-## Repository Boundaries
-
-- All development work happens in THIS repository (`commcare-app-tools`).
-- The `commcare-hq` repository at `../commcare-hq` is a **read-only reference**.
-  Do NOT make any changes to files in `commcare-hq`. It exists solely to
-  understand CommCare HQ's API structure, OAuth2 configuration, and codebase
-  patterns.
-
 ## Architecture
 
 - `src/commcare_app_tools/cli/` -- Click CLI commands (thin wrappers)

@@ -75,6 +75,7 @@ from .formplayer import formplayer  # noqa: E402
 from .forms import form  # noqa: E402
 from .lookup_tables import lookup_table  # noqa: E402
 from .reports import report  # noqa: E402
+from .test import test  # noqa: E402
 from .users import user  # noqa: E402
 from .web import web  # noqa: E402
 from .workspace import workspace  # noqa: E402
@@ -90,6 +91,7 @@ cli.add_command(form)
 cli.add_command(user)
 cli.add_command(lookup_table)
 cli.add_command(report)
+cli.add_command(test)
 cli.add_command(formplayer)
 cli.add_command(commcare_cli)
 cli.add_command(web)

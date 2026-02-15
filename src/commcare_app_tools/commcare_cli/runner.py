@@ -127,3 +127,43 @@ class CommCareCLIRunner:
         # Run without capturing - direct terminal interaction
         result = subprocess.run(args)
         return result.returncode
+
+    def play_with_input(
+        self,
+        app_path: str,
+        restore_file: str,
+        stdin_input: str,
+        timeout: int = 120,
+    ) -> subprocess.CompletedProcess:
+        """
+        Run a CommCare app with piped stdin and captured output.
+
+        Used for automated test execution: navigation steps and :replay
+        commands are fed via stdin, and stdout/stderr are captured for
+        result parsing.
+
+        Args:
+            app_path: Path to app CCZ file.
+            restore_file: Path to restore XML file.
+            stdin_input: Complete stdin content (navigation + :replay lines).
+            timeout: Timeout in seconds.
+
+        Returns:
+            CompletedProcess with captured stdout and stderr.
+        """
+        jar_path = self.builder.get_jar_path()
+        java_path = self.builder.find_java()
+
+        cmd = [
+            java_path, "-jar", str(jar_path),
+            "play", app_path,
+            "-r", restore_file,
+        ]
+
+        return subprocess.run(
+            cmd,
+            input=stdin_input,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )

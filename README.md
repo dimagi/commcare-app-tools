@@ -1,6 +1,14 @@
 # CommCare App Tools (`cc`)
 
-A cross-platform CLI and web UI for CommCare app builders. Supports Windows, Linux, and macOS.
+## What is this?
+
+CommCare App Tools is a proof of concept that makes it easier to work with CommCare from your computer. If you build apps on CommCare HQ, you normally do everything through the website -- looking up cases, checking mobile worker data, downloading apps, and so on. This project wraps all of those actions into a single command-line tool called `cc` so you can do them quickly from a terminal without clicking through the web interface.
+
+Beyond just talking to CommCare HQ, this tool also lets you **test your forms locally**. It uses a piece of CommCare's own code (the commcare-cli) to run your app on your machine, fill out a form with test data you define, and check that the result is what you expected. You write a simple YAML file that says "open this form, answer these questions with these values" and the tool does the rest -- downloading the app, grabbing the right user data, running the form, and telling you if it passed or failed.
+
+There is also a **web UI** you can launch with `cc web start`. It gives you a visual way to browse your domains, pick an app and user, and set up test configurations without needing to know any command-line syntax. Think of it as a helper that walks you through the setup, then hands off to the CLI to do the actual work.
+
+This project is intended to support Windows, Linux, and macOS but was initially developed and tested on windows.
 
 ## Setup
 
@@ -63,7 +71,20 @@ cc --domain my-project user list            # List mobile workers
 cc api get /a/my-project/api/case/v2/       # Raw API request
 ```
 
-**Local Form Testing:**
+**User Restores:**
+```bash
+cc --domain my-project user restore worker1                    # Check restore access
+cc --domain my-project user restore worker1 --output-xml r.xml # Save restore XML
+```
+
+**Automated Form Testing:**
+```bash
+cc test init --output tests/my-test.yaml   # Generate a test template
+cc test run tests/my-test.yaml             # Run a test end-to-end
+cc test run tests/my-test.yaml --output-xml result.xml  # Save form output
+```
+
+**Local Form Testing (interactive):**
 ```bash
 cc cli validate ./my-app.ccz               # Validate app
 cc cli play ./my-app.ccz --demo            # Run with demo user
@@ -110,12 +131,15 @@ cc domain list
 cc app list|get
 cc case list|get
 cc form list|get
-cc user list|get
+cc user list|get|restore
 cc lookup-table list|get|items
 cc report list|data
 cc api get|post
 
-# Local Form Testing
+# Automated Form Testing
+cc test init|run
+
+# Local Form Testing (interactive)
 cc cli build|status|clean|validate|play
 
 # Web UI

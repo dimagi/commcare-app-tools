@@ -53,6 +53,9 @@ class AuthenticatedClient:
 
     def _auth_headers(self) -> dict[str, str]:
         token = self._ensure_valid_token()
+        # Support API key tokens (stored as "ApiKey user:key")
+        if token.startswith("ApiKey "):
+            return {"Authorization": token}
         return {"Authorization": f"Bearer {token}"}
 
     def get(self, path: str, **kwargs: Any) -> httpx.Response:

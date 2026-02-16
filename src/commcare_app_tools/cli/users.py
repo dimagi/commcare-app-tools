@@ -3,7 +3,7 @@
 import click
 
 from ..api.client import CommCareAPI
-from ..api.endpoints import USER_LIST
+from ..api.endpoints import USER_DETAIL, USER_LIST
 from ..config.environments import ConfigManager
 from ..utils.output import format_output, print_error
 from ..workspace.manager import WorkspaceManager
@@ -68,6 +68,143 @@ def get_user(ctx, user_id):
         raise SystemExit(1)
 
     format_output(data, fmt=output_format, output_file=output_file)
+
+
+@user.command("create")
+@click.argument("username")
+@click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True,
+              help="Password for the new user.")
+@click.option("--first-name", default=None, help="First name.")
+@click.option("--last-name", default=None, help="Last name.")
+@click.option("--email", default=None, help="Email address.")
+@click.option("--language", default=None, help="Language code (e.g. 'en', 'fra').")
+@click.option("--phone", multiple=True, help="Phone number (repeatable).")
+@click.option("--group", multiple=True, help="Group ID to assign (repeatable).")
+@click.option("--location", multiple=True, help="Location ID to assign (repeatable).")
+@click.option("--primary-location", default=None, help="Primary location ID.")
+@click.pass_context
+def create_user(ctx, username, password, first_name, last_name, email, language,
+                phone, group, location, primary_location):
+    """Create a new mobile worker.
+
+    USERNAME is the short username (without @domain.commcarehq.org).
+
+    Examples:
+
+        cc --domain my-project user create testworker
+
+        cc --domain my-project user create testworker --first-name Test --last-name Worker
+
+        cc --domain my-project user create testworker --phone +15551234567 --group abc123
+    """
+    config = ConfigManager()
+    domain = ctx.obj.get("domain")
+    env_name = ctx.obj.get("env_name")
+    output_format = ctx.obj.get("output_format", "json")
+    output_file = ctx.obj.get("output_file")
+
+    if not domain:
+        print_error("--domain is required. Example: cc --domain my-project user create testworker")
+        raise SystemExit(1)
+
+    payload: dict = {
+        "username": username,
+        "password": password,
+    }
+    if first_name:
+        payload["first_name"] = first_name
+    if last_name:
+        payload["last_name"] = last_name
+    if email:
+        payload["email"] = email
+    if language:
+        payload["language"] = language
+    if phone:
+        payload["phone_numbers"] = list(phone)
+    if group:
+        payload["groups"] = list(group)
+    if location:
+        payload["locations"] = list(location)
+    if primary_location:
+        payload["primary_location"] = primary_location
+
+    try:
+        with CommCareAPI(config, domain=domain, env_name=env_name) as api_client:
+            response = api_client.post(USER_LIST, json=payload)
+            response.raise_for_status()
+            data = response.json()
+    except Exception as e:
+        print_error(str(e))
+        raise SystemExit(1)
+
+    click.echo(
+        f"Created user '{username}' (id: {data.get('id', 'unknown')})",
+        err=True,
+    )
+    format_output(data, fmt=output_format, output_file=output_file)
+
+
+@user.command("delete")
+@click.argument("user_id")
+@click.option("--yes", is_flag=True, help="Skip confirmation prompt.")
+@click.pass_context
+def delete_user(ctx, user_id, yes):
+    """Delete a mobile worker.
+
+    USER_ID is the backend user ID (UUID). Use 'cc user list' or 'cc user get'
+    to find it.
+
+    You will be asked to confirm before the user is deleted unless --yes is
+    passed.
+
+    Examples:
+
+        cc --domain my-project user delete abc123-def456
+
+        cc --domain my-project user delete abc123-def456 --yes
+    """
+    config = ConfigManager()
+    domain = ctx.obj.get("domain")
+    env_name = ctx.obj.get("env_name")
+    output_format = ctx.obj.get("output_format", "json")
+    output_file = ctx.obj.get("output_file")
+
+    if not domain:
+        print_error("--domain is required. Example: cc --domain my-project user delete USER_ID")
+        raise SystemExit(1)
+
+    # Look up the user first so we can show details in the confirmation
+    try:
+        with CommCareAPI(config, domain=domain, env_name=env_name) as api_client:
+            detail_path = USER_DETAIL.format(user_id=user_id)
+            get_response = api_client.get(detail_path)
+            get_response.raise_for_status()
+            user_data = get_response.json()
+    except Exception as e:
+        print_error(f"Failed to look up user: {e}")
+        raise SystemExit(1)
+
+    display_name = user_data.get("username", user_id)
+
+    if not yes:
+        click.echo(f"About to delete user '{display_name}' (id: {user_id}) "
+                    f"from domain '{domain}'.", err=True)
+        if not click.confirm("Are you sure?"):
+            click.echo("Aborted.", err=True)
+            raise SystemExit(0)
+
+    try:
+        with CommCareAPI(config, domain=domain, env_name=env_name) as api_client:
+            detail_path = USER_DETAIL.format(user_id=user_id)
+            response = api_client.delete(detail_path)
+            response.raise_for_status()
+    except Exception as e:
+        print_error(f"Failed to delete user: {e}")
+        raise SystemExit(1)
+
+    result = {"success": True, "deleted_user": display_name, "user_id": user_id}
+    click.echo(f"Deleted user '{display_name}'.", err=True)
+    format_output(result, fmt=output_format, output_file=output_file)
 
 
 @user.command("restore")

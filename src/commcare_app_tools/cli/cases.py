@@ -17,7 +17,7 @@ def case():
 @click.option("--case-type", default=None, help="Filter by case type.")
 @click.option("--owner-id", default=None, help="Filter by owner ID.")
 @click.option("--closed", default=None, type=bool, help="Filter by closed status.")
-@click.option("--limit", default=20, type=int, help="Number of results to return.")
+@click.option("--limit", default=None, type=int, help="Maximum number of results (default: all).")
 @click.option("--offset", default=0, type=int, help="Pagination offset.")
 @click.pass_context
 def list_cases(ctx, case_type, owner_id, closed, limit, offset):

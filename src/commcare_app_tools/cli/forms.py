@@ -15,7 +15,7 @@ def form():
 
 @form.command("list")
 @click.option("--xmlns", default=None, help="Filter by form XMLNS.")
-@click.option("--limit", default=20, type=int, help="Number of results to return.")
+@click.option("--limit", default=None, type=int, help="Maximum number of results (default: all).")
 @click.option("--offset", default=0, type=int, help="Pagination offset.")
 @click.pass_context
 def list_forms(ctx, xmlns, limit, offset):

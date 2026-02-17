@@ -167,8 +167,12 @@ class TestDefinition:
             lines.append("")
             replay_string = self.build_replay_string()
             lines.append(f":replay {replay_string}")
-            # Empty lines to navigate through remaining prompts and complete
-            # the form (triggers, calculated fields, "Form End" screen).
+            # After replay, the cursor lands on the last replayed question.
+            # Use :next to advance past it without overwriting the replayed
+            # value (an empty Enter would clear the answer).
+            lines.append(":next")
+            # Empty lines to navigate through any remaining prompts
+            # (triggers, calculated fields, "Form End" screen) to completion.
             # Extra lines are harmless -- the CLI ignores input after exit.
             for _ in range(10):
                 lines.append("")
